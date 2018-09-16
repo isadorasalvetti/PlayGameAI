@@ -10,7 +10,7 @@ Grab a snapshot of the current area.
 # GLOBALS:
 
 # Image sizing
-xPad = 98
+xPad = 0
 yPad = 105
 xEnd = 996
 yEnd = 742
