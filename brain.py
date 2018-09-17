@@ -291,13 +291,20 @@ def calcCost(img, sampleSize, dir, obj):
 	'''
 	center = sampleSize/2
 	nSamples = (sampleSize/2 -playerSize/2) / minEnemySize
+	enemyFound = False
+
+	sampleDest = ()
 
 	#Taking samples of the area in the chosen direction
 	for smplN in range (nSamples):
 		smpl = smpl + minEnemySize
 		xy = (smpl*dir[0], smpl*dir[1])
 		pixel = im.getpixel(xy)
-		LookforEnemy(pixel)
+		if(LookforEnemy(pixel)):
+			enemyFound = True
+			break
+
+	cost = enemyFound * dist(obj, sampleDest)
 
 	return cost
 
