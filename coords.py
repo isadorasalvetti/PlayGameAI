@@ -1,4 +1,5 @@
 import quickGrab
+import math
 
 xp = quickGrab.xPad
 yp = quickGrab.xPad
@@ -9,12 +10,30 @@ List of coords x, y of game elements in screen conditions
 
 startButton = (500 , 340)
 playGameButton = (200, 420)
+safeStart = (5, 170)
 
 #Directions
 right = (1, 0)
 left = (-1, 0)
 up = (0, -1)
 down = (0, 1)
+
+def calcDistance(start, end):
+	a = pow(end[0] - start[0], 2)
+	b = pow(end[1] - start[1], 2)
+	return math.sqrt(a + b)
+
+def sumTT(tp1, tp2):
+	return (int(tp1[0] + tp2[0]), int(tp1[1] + tp2[1]))
+
+def multT(tp, scl):
+	return (tp[0]*scl, tp[1]*scl)
+
+def compare(tpl1, tpl2, error):
+	if (abs(tpl1[0] - tpl2[0]) < error and abs(tpl1[1] - tpl2[1]) < error):
+		return True
+	else:
+		return False
 
 #Codes for keystrokes on win32api
 VK_CODE = {'backspace':0x08,
