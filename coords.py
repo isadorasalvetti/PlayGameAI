@@ -17,19 +17,24 @@ right = (1, 0)
 left = (-1, 0)
 up = (0, -1)
 down = (0, 1)
+none = (0, 0)
 
 def calcDistance(start, end):
 	a = pow(end[0] - start[0], 2)
 	b = pow(end[1] - start[1], 2)
 	return math.sqrt(a + b)
 
-def sumTT(tp1, tp2):
-	return (int(tp1[0] + tp2[0]), int(tp1[1] + tp2[1]))
+def sumTT(*tpls):
+	a, b = 0, 0
+	for tpl in tpls:
+		a += tpl[0]
+		b += tpl[1]
+	return (a, b)
 
 def multT(tp, scl):
 	return (tp[0]*scl, tp[1]*scl)
 
-def compare(tpl1, tpl2, error):
+def compare(tpl1, tpl2, error = 0.01):
 	if (abs(tpl1[0] - tpl2[0]) < error and abs(tpl1[1] - tpl2[1]) < error):
 		return True
 	else:

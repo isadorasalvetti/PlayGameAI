@@ -39,6 +39,7 @@ maxEnemyCost = 9999
 
 #INPUTS
 moveDelay = 0.125 #Amount of time to keep move button down 0.25 = 38; 0.125 = 19
+#NOTE - move should be 3 pixels per tick in original....
 moveAmount = 152 * moveDelay #MOVE AMOUNT - how much the pawn moves on each move.
 
 def Click(buttonCoord, func=""):
@@ -52,7 +53,6 @@ def Click(buttonCoord, func=""):
 
 def moveInThisDir(rgt, lft, up, down): #DONE, working. Returns the directin moved as coords.DIR
 	chosenMove = min(rgt, lft, up, down)
-	print ("Move sucessfull")
 	if (chosenMove == rgt):
 		MoveRight()
 		return coords.right
@@ -326,7 +326,7 @@ class LevelGraph:
 				#Player found. Player pos is adjusted to inlclude ORIGINAL COORDS dark red border
 				pFound = True
 				playerPos = (xpad + xp - playerBorder, ypad + yp - playerBorder)
-				print("Player found at " + str(playerPos[0]) + ", " + str(playerPos[1]))
+				#print("Player found at " + str(playerPos[0]) + ", " + str(playerPos[1]))
 			if (not pFound):
 				xp += lookUpInterv
 				if (xp >= size):
@@ -375,6 +375,7 @@ def MoveToObjective(level):
 
 			#Grab image around player
 			xpad, ypad = playerPos[0] + playerSize/2 - moveSampleSize/2, playerPos[1] + playerSize/2 - moveSampleSize/2
+			print(xpad, ypad)
 			img = imGrab.portionGrab(moveSampleSize, moveSampleSize, xpad, ypad)
 			imGrab.saveIm(img)
 
@@ -383,8 +384,9 @@ def MoveToObjective(level):
 			lft = cost.calcCost(coords.left)
 			up = cost.calcCost(coords.up)
 			down = cost.calcCost(coords.down)
+			none = cost.calcCost(coords.none)
 
-			print ("Costs = " + str(rgt) + ", " + str(lft) + ", " + str(up) + ", " + str(down))
+			#print ("Costs = " + str(rgt) + ", " + str(lft) + ", " + str(up) + ", " + str(down) + ", " + str(none))
 			moveDir = coords.multT(moveInThisDir(rgt, lft, up, down), moveAmount)
 			level.updatePlayerCoords(moveDir)
 			level.playerSafetyChech(img)
@@ -403,8 +405,14 @@ class Cost:
 
 		'''
 		center = moveSampleSize/2
-		nSamples = int((moveSampleSize/2-playerSize/2) / minEnemySize)
+
+		if (abs(direct[0]) > 0 or abs(direct[1]) > 0): #Check if the direction is none
+			nSamples = int((moveSampleSize/2-playerSize/2) / minEnemySize)
+		else:
+			nSamples = 0
+
 		enemyFound = False
+		obstacleFound = 0
 
 		#Check distance between possible move and objective in absolute coordenates
 		dirPosition = (self.curPosition[0] + playerSize/2 + direct[0] * (playerSize/2 + moveAmount), self.curPosition[1] + playerSize/2 + direct[1] * (playerSize/2 + moveAmount))
@@ -415,12 +423,13 @@ class Cost:
 
 		#Taking samples of the area in the chosen direction
 		for smplN in range (nSamples):
-			smpl = (smpl[0] + direct[0] * minEnemySize, smpl[0] + direct[0] * minEnemySize)
 			pixel = self.img.getpixel(smpl)
 			borderCheck = (smplN < 2)
+			print (str(direct) + ", " + str(smpl) + ", " + str(pixel) + ", " + str(borderCheck))
 			obstacleFound = LookForEnemy(pixel, borderCheck)
 			if(obstacleFound > 0):
 				break
+			smpl = (smpl[0] + direct[0] * minEnemySize, smpl[1] + direct[1] * minEnemySize)
 
 		cost = obstacleFound * maxEnemyCost + distance
 
@@ -431,7 +440,6 @@ def Main():
 	Click(coords.safeStart, "Click screen to activate")
 	level = LevelGraph()
 	MoveToObjective(level)
-	#MoveRight()
 
 
 if __name__ == '__main__':
