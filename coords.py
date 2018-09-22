@@ -31,6 +31,9 @@ def sumTT(*tpls):
 		b += tpl[1]
 	return (a, b)
 
+def invert(tp):
+	return (tp[0], tp[1])
+
 def multT(tp, scl):
 	return (tp[0]*scl, tp[1]*scl)
 

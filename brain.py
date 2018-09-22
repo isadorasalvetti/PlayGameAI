@@ -88,11 +88,7 @@ def MoveDown():
 
 #VISION UTILITIES
 def CheckPixelColor(pixel, check):
-
-	if (pixel[0] == check[0] and pixel[1] == check[1] and pixel[2] == check[2]):
-		return True
-	else:
-		return False
+	return (pixel[0] == check[0] and pixel[1] == check[1] and pixel[2] == check[2])
 
 def LookForEnemy(pixel, checkBorder):
 	
@@ -102,7 +98,8 @@ def LookForEnemy(pixel, checkBorder):
 
 	'''
 
-	if (pixel[1] < 100 and pixel[2] > 240): #This an enemy. Return 1
+	if (pixel[0] < 10 and pixel[1] < 10 and pixel[2] > 50): #This an enemy. Return 1
+		print("Enemy found!")
 		return 1
 	elif (checkBorder): #We are checking the border
 		if (pixel[0] < 10 and pixel[1] < 10 and pixel[2] < 10):#This is the border. Also return 1
@@ -370,12 +367,12 @@ def MoveToObjective(level):
 		objectiveReached = False
 		while True:
 			playerPos = (level.playerCoords[0], level.playerCoords[1]) # (x, y)
-			if coords.compare(playerPos, curObj, moveAmount*2): #This objective has been reached. Break.
+			if coords.compare(playerPos, curObj, moveAmount): #This objective has been reached. Break.
 				break
 
 			#Grab image around player
 			xpad, ypad = playerPos[0] + playerSize/2 - moveSampleSize/2, playerPos[1] + playerSize/2 - moveSampleSize/2
-			print(xpad, ypad)
+			#print(xpad, ypad)
 			img = imGrab.portionGrab(moveSampleSize, moveSampleSize, xpad, ypad)
 			imGrab.saveIm(img)
 
@@ -419,17 +416,20 @@ class Cost:
 		distance = coords.calcDistance(self.curObj, dirPosition)
 
 		#Set the first sample - center of image + direction * half size of player + tolerance
-		smpl = (int(center + direct[0]*(playerSize/2 + 4)), int(center + direct[1]*(playerSize/2 + 4)))
+		samples = [(int(center + direct[0]*(playerSize/2 + 4)), int(center + direct[1]*(playerSize/2 + 4))),
+				(int(center + direct[0]*(playerSize/2 + 4) + direct[1]*(playerSize/2)), int(center + direct[1]*(playerSize/2 + 4) + direct[0]*(playerSize/2))),
+				(int(center + direct[0]*(playerSize/2 + 4) - direct[1]*(playerSize/2)), int(center + direct[1]*(playerSize/2 + 4) - direct[0]*(playerSize/2)))]
 
 		#Taking samples of the area in the chosen direction
 		for smplN in range (nSamples):
-			pixel = self.img.getpixel(smpl)
-			borderCheck = (smplN < 2)
-			print (str(direct) + ", " + str(smpl) + ", " + str(pixel) + ", " + str(borderCheck))
-			obstacleFound = LookForEnemy(pixel, borderCheck)
-			if(obstacleFound > 0):
-				break
-			smpl = (smpl[0] + direct[0] * minEnemySize, smpl[1] + direct[1] * minEnemySize)
+			for smpl in samples:
+				pixel = self.img.getpixel(smpl)
+				borderCheck = (smplN < 2)
+				#print (str(direct) + ", " + str(smpl) + ", " + str(pixel) + ", " + str(borderCheck))
+				obstacleFound = LookForEnemy(pixel, borderCheck)
+				if(obstacleFound > 0):
+					break
+				smpl = (smpl[0] + direct[0] * minEnemySize, smpl[1] + direct[1] * minEnemySize)
 
 		cost = obstacleFound * maxEnemyCost + distance
 
